@@ -25,7 +25,8 @@
 
   const LANE_COUNT = 6;
   const COMMIT_RADIUS = 5;
-  const SPEED = 0.4; // pixels per frame (slow drift)
+  // Speed in pixels per frame — 0.4 gives a gentle, readable drift at 60 fps
+  const SPEED = 0.4;
 
   let lanes = [];
   let offset = 0; // global y-scroll offset
@@ -49,7 +50,9 @@
       const x = spacing * (i + 1);
       const color = LANE_COLORS[i % LANE_COLORS.length];
 
-      // Spread commits evenly across a tall virtual canvas (3× screen height)
+      // Spread commits across a virtual canvas 3× the screen height so there
+      // are always commits above and below the visible area. This prevents a
+      // visible "jump" when the offset wraps back to zero.
       const commits = [];
       const totalHeight = canvas.height * 3;
       const gap = 80 + Math.random() * 60;
