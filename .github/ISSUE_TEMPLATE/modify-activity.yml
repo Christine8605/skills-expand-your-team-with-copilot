@@ -1,0 +1,123 @@
+name: "Modify an Existing Activity"
+description: "Request changes to an activity that is already on the website, such as updating the schedule, description, or maximum number of students."
+title: "Modify Activity: [Activity Name]"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Modify an Existing Extracurricular Activity
+        Please fill out the fields below to describe what you would like to change. You only need to fill in the fields you want to update — leave unchanged fields blank.
+
+  - type: input
+    id: activity-name
+    attributes:
+      label: Activity Name
+      description: What is the exact name of the activity you want to change? (Must match the name shown on the website.)
+      placeholder: e.g. Chess Club
+    validations:
+      required: true
+
+  - type: input
+    id: new-name
+    attributes:
+      label: New Activity Name (optional)
+      description: If you want to rename the activity, enter the new name here. Leave blank to keep the current name.
+      placeholder: e.g. Chess & Strategy Club
+    validations:
+      required: false
+
+  - type: textarea
+    id: new-description
+    attributes:
+      label: New Description (optional)
+      description: If you want to update the description, enter the full new description here. Leave blank to keep the current description.
+      placeholder: e.g. Learn chess strategy, compete in tournaments, and develop critical thinking skills.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: new-days
+    attributes:
+      label: New Meeting Days (optional)
+      description: If you want to change the meeting days, select all days the activity will meet. Leave all unchecked to keep the current days.
+      options:
+        - label: Monday
+        - label: Tuesday
+        - label: Wednesday
+        - label: Thursday
+        - label: Friday
+        - label: Saturday
+        - label: Sunday
+    validations:
+      required: false
+
+  - type: input
+    id: new-start-time
+    attributes:
+      label: New Start Time (optional)
+      description: If you want to change the start time, enter it here using 12-hour format. Leave blank to keep the current start time.
+      placeholder: e.g. 3:30 PM
+    validations:
+      required: false
+
+  - type: input
+    id: new-end-time
+    attributes:
+      label: New End Time (optional)
+      description: If you want to change the end time, enter it here using 12-hour format. Leave blank to keep the current end time.
+      placeholder: e.g. 5:00 PM
+    validations:
+      required: false
+
+  - type: input
+    id: new-max-participants
+    attributes:
+      label: New Maximum Number of Students (optional)
+      description: If you want to change the maximum number of students, enter the new number here. Leave blank to keep the current limit.
+      placeholder: e.g. 25
+    validations:
+      required: false
+
+  - type: dropdown
+    id: new-difficulty
+    attributes:
+      label: New Difficulty Level (optional)
+      description: If you want to change or set the difficulty level, select it here.
+      options:
+        - "(No change)"
+        - "(Remove difficulty level)"
+        - Beginner
+        - Intermediate
+        - Advanced
+    validations:
+      required: false
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: Reason for Change
+      description: Briefly explain why this change is needed. This helps us understand the request.
+      placeholder: e.g. The coach changed the practice time, so the schedule needs to be updated.
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ### For Copilot: Acceptance Criteria
+        - Only the fields filled in by the teacher should be changed; all other fields must remain exactly as they are.
+        - If new meeting days are selected (at least one checkbox checked), replace the days entirely with the newly selected days.
+        - If a new start or end time is provided, update `schedule_details.start_time` / `schedule_details.end_time` (24-hour HH:MM format) and update the human-readable `schedule` string accordingly.
+        - If a new maximum participants value is provided, update `max_participants` to the new integer value.
+        - If difficulty is set to "(Remove difficulty level)", remove the `difficulty` key from the activity entry.
+        - If difficulty is set to one of Beginner/Intermediate/Advanced, update or add the `difficulty` field accordingly.
+        - If the activity is renamed, the dictionary key in `initial_activities` must be updated as well.
+        - The updated `schedule` string must follow the existing format, for example: "Mondays and Fridays, 3:15 PM - 4:45 PM".
+
+        ### For Copilot: Implementation Hints
+        - Activity data is in `src/backend/database.py` in the `initial_activities` dictionary.
+        - The `schedule` string is a human-readable field; `schedule_details` holds the machine-readable version. Both must be kept in sync when time or days change.
+        - 24-hour time format is used in `schedule_details` (e.g., "15:15" for 3:15 PM).
+        - The database is only seeded when empty. For changes to take effect on a running instance, the database must be cleared/reset or the change made directly via API.

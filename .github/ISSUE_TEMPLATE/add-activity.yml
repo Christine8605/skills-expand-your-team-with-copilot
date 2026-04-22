@@ -1,0 +1,116 @@
+name: "Add a New Activity"
+description: "Request a new extracurricular activity to be added to the website."
+title: "Add Activity: [Activity Name]"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Add a New Extracurricular Activity
+        Please fill out all the fields below so we can add the new activity to the Mergington High School website.
+
+  - type: input
+    id: activity-name
+    attributes:
+      label: Activity Name
+      description: What is the name of the new activity?
+      placeholder: e.g. Photography Club
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Activity Description
+      description: Provide a short description of the activity. What will students do? What will they learn?
+      placeholder: e.g. Students will explore photography techniques, learn about composition, lighting, and editing photos using free software.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: days
+    attributes:
+      label: Meeting Days
+      description: Which days of the week does this activity meet?
+      options:
+        - label: Monday
+        - label: Tuesday
+        - label: Wednesday
+        - label: Thursday
+        - label: Friday
+        - label: Saturday
+        - label: Sunday
+    validations:
+      required: true
+
+  - type: input
+    id: start-time
+    attributes:
+      label: Start Time
+      description: What time does the activity start? Use 12-hour format (AM/PM).
+      placeholder: e.g. 3:15 PM
+    validations:
+      required: true
+
+  - type: input
+    id: end-time
+    attributes:
+      label: End Time
+      description: What time does the activity end? Use 12-hour format (AM/PM).
+      placeholder: e.g. 4:45 PM
+    validations:
+      required: true
+
+  - type: input
+    id: max-participants
+    attributes:
+      label: Maximum Number of Students
+      description: What is the maximum number of students allowed in this activity?
+      placeholder: e.g. 20
+    validations:
+      required: true
+
+  - type: dropdown
+    id: difficulty
+    attributes:
+      label: Difficulty Level
+      description: Select the difficulty level for this activity (leave blank if not applicable).
+      options:
+        - "(No difficulty level)"
+        - Beginner
+        - Intermediate
+        - Advanced
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ### For Copilot: Acceptance Criteria
+        - The new activity must appear on the website's activities list immediately after being added.
+        - The activity must include: name, description, schedule (days, start time, end time), and maximum number of participants.
+        - If a difficulty level was specified (not "No difficulty level"), it must be included.
+        - The activity starts with zero participants enrolled.
+        - The schedule string should follow the format already used in the database, for example: "Mondays and Fridays, 3:15 PM - 4:45 PM".
+        - The schedule_details object must include days (list), start_time (HH:MM 24-hour), and end_time (HH:MM 24-hour).
+
+        ### For Copilot: Implementation Hints
+        - New activities are stored in `src/backend/database.py` inside the `initial_activities` dictionary.
+        - Each activity entry follows this structure:
+          ```python
+          "Activity Name": {
+              "description": "...",
+              "schedule": "Days, HH:MM AM/PM - HH:MM AM/PM",
+              "schedule_details": {
+                  "days": ["Day1", "Day2"],
+                  "start_time": "HH:MM",
+                  "end_time": "HH:MM"
+              },
+              "difficulty": "Beginner",
+              "max_participants": 20,
+              "participants": []
+          }
+          ```
+        - Only add the `"difficulty"` key if a difficulty level was specified.
+        - The database is only seeded when empty, so existing running instances will need the activity added via the API or a database reset.

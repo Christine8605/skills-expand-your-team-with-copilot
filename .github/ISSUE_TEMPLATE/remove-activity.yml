@@ -1,0 +1,51 @@
+name: "Remove an Activity"
+description: "Request that an existing extracurricular activity be removed from the website."
+title: "Remove Activity: [Activity Name]"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Remove an Extracurricular Activity
+        Please fill out the fields below to request the removal of an activity from the Mergington High School website.
+
+  - type: input
+    id: activity-name
+    attributes:
+      label: Activity Name
+      description: What is the exact name of the activity to remove? (Must match the name shown on the website.)
+      placeholder: e.g. Drama Club
+    validations:
+      required: true
+
+  - type: textarea
+    id: reason
+    attributes:
+      label: Reason for Removal
+      description: Why should this activity be removed? For example, the activity has ended, the teacher is no longer available, or the activity is being replaced by another one.
+      placeholder: e.g. The Drama Club is no longer running this school year due to the faculty supervisor retiring.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      description: Please confirm the following before submitting.
+      options:
+        - label: I understand that removing this activity will permanently delete it from the website and all student sign-ups for this activity will be lost.
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ### For Copilot: Acceptance Criteria
+        - The activity with the exact name provided above must be removed from the website's activity list.
+        - After removal, the activity must no longer appear on the website for students or teachers.
+        - All student enrollments (participants list) associated with this activity should also be removed.
+
+        ### For Copilot: Implementation Hints
+        - Activity data is defined in `src/backend/database.py` in the `initial_activities` dictionary. Remove the corresponding entry (the key matching the activity name and its full value).
+        - The database is only seeded when empty. To apply this removal to a running instance, the database must be cleared/reset, or a new API endpoint to delete activities can be added.
+        - If the activity is currently stored in a running MongoDB instance, it can be removed by deleting the document with `_id` equal to the activity name from the `activities` collection in the `mergington_high` database.
