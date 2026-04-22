@@ -19,6 +19,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Dark mode toggle element
   const darkModeToggle = document.getElementById("dark-mode-toggle");
 
+  // View toggle elements
+  const cardViewBtn = document.getElementById("card-view-btn");
+  const calendarViewBtn = document.getElementById("calendar-view-btn");
+
   // Authentication elements
   const loginButton = document.getElementById("login-button");
   const userInfo = document.getElementById("user-info");
@@ -45,6 +49,17 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentDay = "";
   let currentTimeRange = "";
   let currentDifficulty = "";
+
+  // View state: "card" or "calendar"
+  let currentView = "card";
+
+  // Calendar layout constants
+  const CALENDAR_DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const CALENDAR_START_HOUR = 6;   // 6:00 AM
+  const CALENDAR_END_HOUR = 20;    // 8:00 PM
+  const PIXELS_PER_HOUR = 64;      // Height in pixels for each hour
+  const MIN_BLOCK_HEIGHT_PX = 18;  // Minimum block height so very short activities remain visible
+  const BLOCK_SPACING_PX = 1;      // Gap in pixels between side-by-side overlapping blocks
 
   // Authentication state
   let currentUser = null;
@@ -476,10 +491,18 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Display filtered activities
-    Object.entries(filteredActivities).forEach(([name, details]) => {
-      renderActivityCard(name, details);
-    });
+    if (currentView === "calendar") {
+      // Render calendar view
+      activitiesList.className = "calendar-view";
+      renderCalendarView(filteredActivities);
+    } else {
+      // Render card view (default)
+      activitiesList.className = "";
+      // Display filtered activities
+      Object.entries(filteredActivities).forEach(([name, details]) => {
+        renderActivityCard(name, details);
+      });
+    }
   }
 
   // Function to render a single activity card
@@ -599,6 +622,209 @@ document.addEventListener("DOMContentLoaded", () => {
 
     activitiesList.appendChild(activityCard);
   }
+
+  // ── Calendar View ──────────────────────────────────────────────────────────
+
+  // Format minutes-since-midnight as a 12-hour time string
+  function formatMinutes(totalMinutes) {
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    const period = h >= 12 ? "PM" : "AM";
+    const displayH = h % 12 || 12;
+    return `${displayH}:${m.toString().padStart(2, "0")} ${period}`;
+  }
+
+  // Assign non-overlapping column slots to a list of time-ranged items.
+  // Each item must have { startMinutes, endMinutes }.
+  // After this call each item also has { col, totalCols }.
+  function assignOverlapColumns(items) {
+    // Sort by start time
+    items.sort((a, b) => a.startMinutes - b.startMinutes);
+
+    // Greedy: place each item in the earliest free column
+    const colEnds = []; // colEnds[i] = end-minute of the last item placed in column i
+    items.forEach((item) => {
+      let col = colEnds.findIndex((end) => end <= item.startMinutes);
+      if (col === -1) col = colEnds.length;
+      item.col = col;
+      colEnds[col] = item.endMinutes;
+    });
+
+    // For each item, count how many columns are needed across its overlap group
+    items.forEach((item) => {
+      const overlapping = items.filter(
+        (other) =>
+          other.startMinutes < item.endMinutes &&
+          other.endMinutes > item.startMinutes
+      );
+      item.totalCols = overlapping.reduce((max, o) => Math.max(max, o.col + 1), 1);
+    });
+  }
+
+  // Render a full-week calendar view for the given filtered activities object
+  function renderCalendarView(filteredActivities) {
+    activitiesList.innerHTML = "";
+
+    const calStartMin = CALENDAR_START_HOUR * 60;
+    const calEndMin = CALENDAR_END_HOUR * 60;
+    const calHeight = (CALENDAR_END_HOUR - CALENDAR_START_HOUR) * PIXELS_PER_HOUR;
+
+    // Build a per-day list of activity time blocks
+    const byDay = {};
+    CALENDAR_DAYS.forEach((day) => { byDay[day] = []; });
+
+    Object.entries(filteredActivities).forEach(([name, details]) => {
+      if (!details.schedule_details) return;
+      const [startH, startM] = details.schedule_details.start_time.split(":").map(Number);
+      const [endH, endM]   = details.schedule_details.end_time.split(":").map(Number);
+      const startMinutes = startH * 60 + startM;
+      const endMinutes   = endH * 60 + endM;
+
+      details.schedule_details.days.forEach((day) => {
+        if (CALENDAR_DAYS.includes(day)) {
+          byDay[day].push({ name, details, startMinutes, endMinutes });
+        }
+      });
+    });
+
+    // Assign overlap columns per day
+    CALENDAR_DAYS.forEach((day) => assignOverlapColumns(byDay[day]));
+
+    // ── Build DOM ────────────────────────────────────────────────────────────
+    const wrapper = document.createElement("div");
+    wrapper.className = "cal-wrapper";
+
+    // Header: empty time-gutter + day labels
+    const header = document.createElement("div");
+    header.className = "cal-header";
+
+    const gutter = document.createElement("div");
+    gutter.className = "cal-time-gutter";
+    header.appendChild(gutter);
+
+    CALENDAR_DAYS.forEach((day) => {
+      const cell = document.createElement("div");
+      cell.className = "cal-day-header";
+      // Use abbreviated day name; full name is available via the title attribute
+      cell.textContent = day.substring(0, 3);
+      cell.title = day;
+      header.appendChild(cell);
+    });
+    wrapper.appendChild(header);
+
+    // Body: time-gutter labels + day columns
+    const body = document.createElement("div");
+    body.className = "cal-body";
+
+    // Time labels
+    const timeGutter = document.createElement("div");
+    timeGutter.className = "cal-time-gutter cal-time-labels";
+    for (let h = CALENDAR_START_HOUR; h <= CALENDAR_END_HOUR; h++) {
+      const label = document.createElement("div");
+      label.className = "cal-hour-label";
+      label.style.height = `${PIXELS_PER_HOUR}px`;
+      const period = h >= 12 ? "PM" : "AM";
+      const dh = h % 12 || 12;
+      label.textContent = `${dh}:00 ${period}`;
+      timeGutter.appendChild(label);
+    }
+    body.appendChild(timeGutter);
+
+    // Day columns
+    CALENDAR_DAYS.forEach((day) => {
+      const column = document.createElement("div");
+      column.className = "cal-day-column";
+      column.style.height = `${calHeight}px`;
+
+      // Hour grid lines
+      for (let h = CALENDAR_START_HOUR; h <= CALENDAR_END_HOUR; h++) {
+        const line = document.createElement("div");
+        line.className = "cal-hour-line";
+        line.style.top = `${(h - CALENDAR_START_HOUR) * PIXELS_PER_HOUR}px`;
+        column.appendChild(line);
+      }
+
+      // Activity blocks for this day
+      byDay[day].forEach(({ name, details, startMinutes, endMinutes, col, totalCols }) => {
+        // Clamp to visible range
+        const visStart = Math.max(startMinutes, calStartMin);
+        const visEnd   = Math.min(endMinutes, calEndMin);
+        if (visStart >= visEnd) return;
+
+        const top    = (visStart - calStartMin) * PIXELS_PER_HOUR / 60;
+        const height = Math.max((visEnd - visStart) * PIXELS_PER_HOUR / 60, MIN_BLOCK_HEIGHT_PX);
+        const widthPct = 100 / totalCols;
+        const leftPct  = col * widthPct;
+
+        const activityType = getActivityType(name, details.description);
+        const typeInfo = activityTypes[activityType];
+        const takenSpots = details.participants.length;
+        const isFull = takenSpots >= details.max_participants;
+
+        const block = document.createElement("div");
+        block.className = "cal-activity-block";
+        block.style.cssText = `
+          top: ${top}px;
+          height: ${height}px;
+          left: calc(${leftPct}% + ${BLOCK_SPACING_PX}px);
+          width: calc(${widthPct}% - ${BLOCK_SPACING_PX * 2}px);
+          background-color: ${typeInfo.color};
+          border-left: 3px solid ${typeInfo.textColor};
+          color: ${typeInfo.textColor};
+        `;
+
+        // Tooltip content (shown on hover)
+        const tooltipHtml = `
+          <div class="cal-tooltip-title">${name}</div>
+          <div class="cal-tooltip-desc">${details.description}</div>
+          <div><strong>Time:</strong> ${formatMinutes(startMinutes)} – ${formatMinutes(endMinutes)}</div>
+          <div><strong>Enrolled:</strong> ${takenSpots} / ${details.max_participants}${isFull ? " (Full)" : ""}</div>
+          ${details.difficulty ? `<div><strong>Level:</strong> ${details.difficulty}</div>` : ""}
+          ${currentUser && !isFull ? `<div class="cal-tooltip-cta">Click to register a student</div>` : ""}
+        `;
+
+        block.innerHTML = `
+          <div class="cal-block-name">${name}</div>
+          <div class="cal-block-spots">${takenSpots}/${details.max_participants}</div>
+          <div class="cal-tooltip">${tooltipHtml}</div>
+        `;
+
+        if (currentUser && !isFull) {
+          block.classList.add("cal-block-clickable");
+          block.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openRegistrationModal(name);
+          });
+        }
+
+        column.appendChild(block);
+      });
+
+      body.appendChild(column);
+    });
+
+    wrapper.appendChild(body);
+    activitiesList.appendChild(wrapper);
+  }
+
+  // View toggle event listeners
+  cardViewBtn.addEventListener("click", () => {
+    if (currentView === "card") return;
+    currentView = "card";
+    cardViewBtn.classList.add("active");
+    calendarViewBtn.classList.remove("active");
+    displayFilteredActivities();
+  });
+
+  calendarViewBtn.addEventListener("click", () => {
+    if (currentView === "calendar") return;
+    currentView = "calendar";
+    calendarViewBtn.classList.add("active");
+    cardViewBtn.classList.remove("active");
+    displayFilteredActivities();
+  });
+
+  // ── End Calendar View ──────────────────────────────────────────────────────
 
   // Event listeners for search and filter
   searchInput.addEventListener("input", (event) => {
