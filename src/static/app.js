@@ -16,6 +16,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const timeFilters = document.querySelectorAll(".time-filter");
   const difficultyFilters = document.querySelectorAll(".difficulty-filter");
 
+  // Dark mode toggle element
+  const darkModeToggle = document.getElementById("dark-mode-toggle");
+
   // Authentication elements
   const loginButton = document.getElementById("login-button");
   const userInfo = document.getElementById("user-info");
@@ -881,8 +884,35 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeRangeFilter,
   };
 
+  // Dark mode: apply saved preference on load
+  function initializeDarkMode() {
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+      darkModeToggle.textContent = "☀️ Light Mode";
+      darkModeToggle.setAttribute("aria-label", "Switch to light mode");
+    }
+  }
+
+  // Dark mode: toggle between light and dark
+  darkModeToggle.addEventListener("click", () => {
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    if (isDark) {
+      document.documentElement.removeAttribute("data-theme");
+      darkModeToggle.textContent = "🌙 Dark Mode";
+      darkModeToggle.setAttribute("aria-label", "Switch to dark mode");
+      localStorage.removeItem("theme");
+    } else {
+      document.documentElement.setAttribute("data-theme", "dark");
+      darkModeToggle.textContent = "☀️ Light Mode";
+      darkModeToggle.setAttribute("aria-label", "Switch to light mode");
+      localStorage.setItem("theme", "dark");
+    }
+  });
+
   // Initialize app
   checkAuthentication();
   initializeFilters();
+  initializeDarkMode();
   fetchActivities();
 });
