@@ -476,6 +476,62 @@ footer {
   font-size: 0.8rem;
 }
 
+/* Share section */
+.share-section {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.share-toggle-button {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  padding: 3px 10px;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.share-toggle-button:hover {
+  background-color: var(--background);
+  border-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.share-panel {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.share-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1rem;
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  color: inherit;
+}
+
+.share-btn:hover {
+  background-color: var(--primary-light);
+  border-color: var(--primary);
+  transform: scale(1.1);
+}
+
 /* Search and Filter Components - Updated for Sidebar */
 .search-box {
   display: flex;
