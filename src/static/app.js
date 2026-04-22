@@ -579,6 +579,17 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         }
       </div>
+      <div class="share-section">
+        <button class="share-toggle-button" aria-label="Share this activity">
+          🔗 Share
+        </button>
+        <div class="share-panel hidden">
+          <a class="share-btn share-email" title="Share via Email">✉️</a>
+          <a class="share-btn share-whatsapp" title="Share via WhatsApp">💬</a>
+          <a class="share-btn share-twitter" title="Share on X / Twitter">𝕏</a>
+          <button class="share-btn share-copy" title="Copy link">📋</button>
+        </div>
+      </div>
     `;
 
     // Add click handlers for delete buttons
@@ -596,6 +607,55 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
     }
+
+    // Share panel toggle
+    const shareToggle = activityCard.querySelector(".share-toggle-button");
+    const sharePanel = activityCard.querySelector(".share-panel");
+    shareToggle.addEventListener("click", () => {
+      sharePanel.classList.toggle("hidden");
+    });
+
+    // Build share content for this activity
+    const shareUrl = `${window.location.origin}${window.location.pathname}?activity=${encodeURIComponent(name)}`;
+    const shareText = `Check out "${name}" at Mergington High School! Schedule: ${formattedSchedule}`;
+
+    activityCard.querySelector(".share-email").href =
+      `mailto:?subject=${encodeURIComponent("Check out this activity: " + name)}&body=${encodeURIComponent(shareText + "\n\n" + shareUrl)}`;
+
+    activityCard.querySelector(".share-whatsapp").href =
+      `https://wa.me/?text=${encodeURIComponent(shareText + " " + shareUrl)}`;
+    activityCard.querySelector(".share-whatsapp").target = "_blank";
+    activityCard.querySelector(".share-whatsapp").rel = "noopener noreferrer";
+
+    activityCard.querySelector(".share-twitter").href =
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+    activityCard.querySelector(".share-twitter").target = "_blank";
+    activityCard.querySelector(".share-twitter").rel = "noopener noreferrer";
+
+    activityCard.querySelector(".share-copy").addEventListener("click", () => {
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          showMessage("Link copied to clipboard!", "success");
+        }).catch(() => {
+          showMessage("Could not copy link. Please copy the URL manually.", "error");
+        });
+      } else {
+        // Fallback for non-secure contexts
+        const textarea = document.createElement("textarea");
+        textarea.value = shareUrl;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+          document.execCommand("copy");
+          showMessage("Link copied to clipboard!", "success");
+        } catch {
+          showMessage("Could not copy link. Please copy the URL manually.", "error");
+        }
+        document.body.removeChild(textarea);
+      }
+    });
 
     activitiesList.appendChild(activityCard);
   }
