@@ -1,15 +1,15 @@
 /* Color palette */
 :root {
-  /* Primary colors */
-  --primary: #1a237e;
-  --primary-light: #534bae;
-  --primary-dark: #000051;
+  /* Primary colors — school colors: lime green & white */
+  --primary: #4caf50;
+  --primary-light: #81c784;
+  --primary-dark: #2e7d32;
   --primary-text: #ffffff;
 
   /* Secondary colors */
-  --secondary: #ff6f00;
-  --secondary-light: #ffa040;
-  --secondary-dark: #c43e00;
+  --secondary: #33691e;
+  --secondary-light: #558b2f;
+  --secondary-dark: #1b5e20;
   --secondary-text: #ffffff;
 
   /* Neutral colors */
@@ -311,7 +311,7 @@ section h3 {
   width: 100%;
   font-weight: bold;
   border-radius: 20px;
-  box-shadow: 0 2px 4px rgba(255, 111, 0, 0.2);
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
   transition: all 0.3s ease;
   display: flex;
   justify-content: center;
@@ -702,4 +702,41 @@ footer {
 
 #logout-button:hover {
   background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ── Git branch animation canvas ── */
+#git-animation {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.18;
+}
+
+/* ── Mascot strip in header ── */
+.mascot-strip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0 4px;
+  flex-wrap: wrap;
+}
+
+.mascot-strip img {
+  width: 52px;
+  height: 52px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.15);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.mascot-strip img:hover {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
