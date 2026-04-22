@@ -1,0 +1,81 @@
+name: "Report a Website Problem"
+description: "Something on the website isn't working correctly? Let us know so we can fix it."
+title: "Bug: [Short Description of the Problem]"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Report a Website Problem
+        Please fill out the fields below to help us understand and fix the issue. The more detail you provide, the faster we can resolve it.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What went wrong?
+      description: Describe what you were trying to do and what happened instead.
+      placeholder: e.g. I tried to sign up a student for Chess Club but got an error message saying "Registration failed."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce the problem
+      description: List the steps someone can follow to see the same problem. This helps us find and fix the issue faster.
+      placeholder: |
+        1. Open the website
+        2. Click on "Chess Club"
+        3. Enter a student email and click "Register"
+        4. See the error message
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+      description: Describe what should have happened if everything worked correctly.
+      placeholder: e.g. The student should have been registered for Chess Club and their email should appear in the participant list.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part of the website has the problem?
+      description: Select the area of the site where you noticed the issue.
+      options:
+        - Activity list (viewing activities)
+        - Student registration (signing up for an activity)
+        - Teacher login
+        - Filters or search
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional-info
+    attributes:
+      label: Any other details?
+      description: Add any other information that might help, such as the browser you were using, the time it happened, or a screenshot description.
+      placeholder: e.g. This happens in Chrome but not in Firefox. It started yesterday afternoon.
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ### For Copilot: Acceptance Criteria
+        - The bug described above must be identified and fixed so that the described steps no longer produce an error or unexpected behavior.
+        - The fix must not break any other existing functionality on the website.
+        - If the issue is a backend error, the API must return a clear and appropriate HTTP status code and error message.
+        - If the issue is a frontend display problem, the UI must render correctly after the fix.
+
+        ### For Copilot: Implementation Hints
+        - The backend API is built with FastAPI in `src/app.py` and `src/backend/routers/`.
+        - The frontend is in `src/static/` (HTML: `index.html`, JavaScript: `app.js`, CSS: `styles.css`).
+        - Check browser developer tools console for JavaScript errors when investigating frontend issues.
+        - Check the FastAPI server logs for backend errors.
+        - The student registration endpoint is likely in `src/backend/routers/activities.py`.
