@@ -870,6 +870,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (savedTheme === "dark") {
       document.documentElement.setAttribute("data-theme", "dark");
       darkModeToggle.textContent = "☀️ Light Mode";
+      darkModeToggle.setAttribute("aria-label", "Switch to light mode");
     }
   }
 
@@ -879,10 +880,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isDark) {
       document.documentElement.removeAttribute("data-theme");
       darkModeToggle.textContent = "🌙 Dark Mode";
-      localStorage.setItem("theme", "light");
+      darkModeToggle.setAttribute("aria-label", "Switch to dark mode");
+      localStorage.removeItem("theme");
     } else {
       document.documentElement.setAttribute("data-theme", "dark");
       darkModeToggle.textContent = "☀️ Light Mode";
+      darkModeToggle.setAttribute("aria-label", "Switch to light mode");
       localStorage.setItem("theme", "dark");
     }
   });
