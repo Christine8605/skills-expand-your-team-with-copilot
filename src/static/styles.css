@@ -503,12 +503,214 @@ button {
   font-size: 0.85rem;
 }
 
-footer {
-  text-align: center;
-  margin-top: 20px;
-  padding: 10px;
-  color: var(--text-secondary);
+/* ── View Toggle Bar ─────────────────────────────────────────────────────── */
+.view-toggle-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  justify-content: flex-end;
+}
+
+.view-toggle-label {
   font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+.view-toggle-btn {
+  background-color: var(--background);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 5px 14px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-toggle-btn.active {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary-dark);
+}
+
+.view-toggle-btn:hover:not(.active) {
+  background-color: var(--primary-light);
+  color: white;
+}
+
+/* ── Calendar View ───────────────────────────────────────────────────────── */
+#activities-list.calendar-view {
+  display: block;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.cal-wrapper {
+  min-width: 560px;
+  font-size: 0.78rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* Header row: empty gutter + day names */
+.cal-header {
+  display: flex;
+  background-color: var(--primary);
+  color: var(--primary-text);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.cal-day-header {
+  flex: 1;
+  text-align: center;
+  padding: 8px 2px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.cal-day-header:first-child {
+  border-left: none;
+}
+
+/* Time gutter shared by header and body */
+.cal-time-gutter {
+  width: 56px;
+  flex-shrink: 0;
+}
+
+/* Body row: time labels + day columns */
+.cal-body {
+  display: flex;
+  background-color: var(--surface);
+}
+
+/* Time label column */
+.cal-time-labels {
+  border-right: 1px solid var(--border);
+  background-color: var(--surface);
+  position: sticky;
+  left: 0;
+  z-index: 5;
+}
+
+.cal-hour-label {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-right: 6px;
+  padding-top: 2px;
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  border-top: 1px solid var(--border-light);
+  box-sizing: border-box;
+}
+
+/* Individual day column */
+.cal-day-column {
+  flex: 1;
+  position: relative;
+  border-left: 1px solid var(--border);
+  min-width: 70px;
+}
+
+/* Horizontal hour grid lines inside each day column */
+.cal-hour-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px solid var(--border-light);
+  pointer-events: none;
+}
+
+/* Activity block */
+.cal-activity-block {
+  position: absolute;
+  border-radius: 3px;
+  padding: 2px 4px;
+  overflow: visible;
+  box-sizing: border-box;
+  cursor: default;
+  transition: filter 0.15s ease;
+  z-index: 2;
+}
+
+.cal-activity-block:hover {
+  filter: brightness(0.93);
+  z-index: 20;
+}
+
+.cal-block-clickable {
+  cursor: pointer;
+}
+
+.cal-block-name {
+  font-weight: bold;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cal-block-spots {
+  font-size: 0.62rem;
+  opacity: 0.8;
+}
+
+/* Hover tooltip */
+.cal-tooltip {
+  display: none;
+  position: absolute;
+  top: 0;
+  left: calc(100% + 6px);
+  background-color: rgba(33, 33, 33, 0.95);
+  color: #fff;
+  padding: 8px 10px;
+  border-radius: 5px;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  width: 200px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.cal-activity-block:hover .cal-tooltip {
+  display: block;
+}
+
+.cal-tooltip-title {
+  font-weight: bold;
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+  padding-bottom: 3px;
+}
+
+.cal-tooltip-desc {
+  margin-bottom: 4px;
+  color: #ddd;
+  font-size: 0.7rem;
+}
+
+.cal-tooltip-cta {
+  margin-top: 5px;
+  font-style: italic;
+  color: #90caf9;
+}
+
+/* On smaller screens, collapse tooltip to appear below the block */
+@media (max-width: 900px) {
+  .cal-tooltip {
+    left: 0;
+    top: calc(100% + 4px);
+    width: 170px;
+  }
 }
 
 /* Share section */
@@ -758,4 +960,12 @@ footer {
 
 #logout-button:hover {
   background-color: rgba(255, 255, 255, 0.3);
+}
+
+footer {
+  text-align: center;
+  margin-top: 20px;
+  padding: 10px;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
 }
